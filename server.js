@@ -20,11 +20,10 @@ var _bodyParser = require('body-parser');
 
 var _bodyParser2 = _interopRequireDefault(_bodyParser);
 
-var _credentials = require('./credentials');
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// "Request" library
+// Express web server framework
+var port = process.env.PORT || 8080; // "Request" library
 /**
 * This is an example of a basic node.js script that performs
 * the Authorization Code oAuth2 flow to authenticate against
@@ -34,15 +33,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
 */
 
-var port = process.env.PORT || 8080; // Express web server framework
-
-
 var client_id = '044216bdc27d49e6b6cdf7f9ee469ef7',
     client_secret = 'eb91bc0ad00842638772d54f7696f8cf',
-
-// client_id = credentials.client_id, // Your client id
-// client_secret = credentials.client_secret, // Your secret
-redirect_uri = 'http://localhost:8888/callback',
+    redirect_uri = 'http://localhost:8888/callback',
     // Your redirect uri
 spotifyBaseUrl = 'https://api.spotify.com',
     spotifyAudioAnalysis = '/v1/audio-features/',

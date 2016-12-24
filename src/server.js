@@ -12,14 +12,11 @@ import request from 'request'; // "Request" library
 import querystring from 'querystring'
 import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
-// import {spotify as credentials} from './credentials';
 
 const port = process.env.PORT || 8080
 
 const client_id = '044216bdc27d49e6b6cdf7f9ee469ef7',
   client_secret = 'eb91bc0ad00842638772d54f7696f8cf',
-      // client_id = credentials.client_id, // Your client id
-      // client_secret = credentials.client_secret, // Your secret
   redirect_uri = 'http://localhost:8888/callback', // Your redirect uri
   spotifyBaseUrl = 'https://api.spotify.com',
   spotifyAudioAnalysis = '/v1/audio-features/',
