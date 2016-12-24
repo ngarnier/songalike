@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel src -d ./",
+    "postinstall": "babel src -d ./",
     "start": "node server.js"
   },
   "keywords": [
