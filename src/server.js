@@ -14,6 +14,7 @@ import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
 import {spotify as credentials} from './credentials';
 
+const port = process.env.PORT || 8080
 
 const client_id = credentials.client_id, // Your client id
   client_secret = credentials.client_secret, // Your secret
@@ -121,5 +122,5 @@ app.get('/search', (req, res) => {
        request(options, callback)
 })
 
-console.log('Listening on 8888')
-app.listen(8888);
+console.log(`Server listening on ${port}`)
+app.listen(port);
