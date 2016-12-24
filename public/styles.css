@@ -21,6 +21,9 @@ h2 {
 fieldset {
   border: none; }
 
+.mdc-textfield {
+  margin: 20px 10px; }
+
 .container {
   margin: 0 auto;
   max-width: 500px; }
@@ -79,7 +82,7 @@ svg {
 /* Modal Content/Box */
 .modal-content {
   background-color: #fefefe;
-  margin: 15% auto;
+  margin: 5% auto;
   /* 15% from the top and centered */
   padding: 20px;
   border: 1px solid #888;

@@ -60,7 +60,7 @@ app.get('/search', (req, res) => {
            if(typeof body.tracks.items["0"] === 'undefined') {
              res.render('index', {
                message: `Sorry, we couldn't find your song.`,
-               message2: `Please try again with the exact Artist and Title names.`
+               instruction: `Please try again with the exact Artist and Title names.`
              })
            }
            else {

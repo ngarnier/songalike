@@ -8,13 +8,15 @@ block content
         p#error
           | #{message}
           br
-          | #{message2}
+          | #{instruction}
+      else
+        p#error
+          | Look for any song with the exact Artist and Track spellings.
       form(method='get', action='/search')
         fieldset
           .mdc-textfield(data-mdc-auto-init='MDCTextfield')
             label.mdc-textfield__label(for='artist') Artist
             input#artist.mdc-textfield__input(type='text', name='artist')
-          span(style={margin:'10px'})
           .mdc-textfield(data-mdc-auto-init='MDCTextfield')
             label.mdc-textfield__label(for='title') Track title
             input#title.mdc-textfield__input(type='text', name='title')
