@@ -1,0 +1,140 @@
+extends head
+block content
+
+  body
+    div.container
+      h2.mdc-typography--display2
+        a(href="./") songalike.
+      if message
+        p#error= message
+      else
+        h3
+          a(href=`${features.uri}`) #{track} by #{artist}
+        ul.mdc-list.mdc-list--two-line.mdc-list--avatar-list.two-line-avatar-text-icon-demo
+          li.mdc-list-item
+            span.emoji 💃
+            span.mdc-list-item__text
+              span.mdc-list-item__text__primary Danceability
+              span.mdc-list-item__text__secondary How suitable a track is for dancing.
+            div.mdc-list-item__end-detail#danceability
+          li.mdc-list-item
+            span.emoji 🔥
+            span.mdc-list-item__text
+              span.mdc-list-item__text__primary Energy
+              span.mdc-list-item__text__secondary A measure representing a perceptual measure of intensity and activity.
+            div.mdc-list-item__end-detail#energy
+          li.mdc-list-item
+            span.emoji 🗯
+            span.mdc-list-item__text
+              span.mdc-list-item__text__primary Speechiness
+              span.mdc-list-item__text__secondary Speechiness detects the presence of spoken words in a track.
+            div.mdc-list-item__end-detail#speechiness
+          li.mdc-list-item
+            span.emoji 🎸
+            span.mdc-list-item__text
+              span.mdc-list-item__text__primary Acousticness
+              span.mdc-list-item__text__secondary Whether the track is acoustic, 1 being fully acoustic.
+            div.mdc-list-item__end-detail#acousticness
+          li.mdc-list-item
+            span.emoji 🎹
+            span.mdc-list-item__text
+              span.mdc-list-item__text__primary Instrumentalness
+              span.mdc-list-item__text__secondary Whether a track contains, 1 being without any vocals.
+            div.mdc-list-item__end-detail#instrumentalness
+          li.mdc-list-item
+            span.emoji 🎟
+            span.mdc-list-item__text
+              span.mdc-list-item__text__primary Liveness
+              span.mdc-list-item__text__secondary Detects the presence of an audience in the recording.
+            div.mdc-list-item__end-detail#liveness
+          li.mdc-list-item
+            span.emoji 🎭
+            span.mdc-list-item__text
+              span.mdc-list-item__text__primary Valence
+              span.mdc-list-item__text__secondary Positiveness of the track. The closer to 1, the happier.
+            div.mdc-list-item__end-detail#valence
+          li.mdc-list-item
+            span.emoji 🐌
+            span.mdc-list-item__text
+              span.mdc-list-item__text__primary Tempo
+              span.mdc-list-item__text__secondary The overall estimated tempo of a track in beats per minute (BPM).
+            div.mdc-list-item__end-detail#tempo
+    div#circles
+
+  script(src='../node_modules/material-components-web/dist/material-components-web.js')
+  script(src='https://d3js.org/d3.v3.min.js')
+  script.
+    mdc.autoInit()
+    var width = 150,
+    height = 60;
+    var arc = d3.svg.arc()
+    .innerRadius(18)
+    .outerRadius(25)
+    .startAngle(0)
+    .endAngle(function(d) { return (d.value / d.size) * 2 * Math.PI; });
+    var defaultArc = d3.svg.arc()
+    .innerRadius(18)
+    .outerRadius(25)
+    .startAngle(0)
+    .endAngle(function(d) { return 100 * 2 * Math.PI; })
+    var features = {
+      'danceability': #{features.danceability},
+      'energy': #{features.energy},
+      'speechiness': #{features.speechiness},
+      'acousticness': #{features.acousticness},
+      'instrumentalness': #{features.instrumentalness},
+      'liveness': #{features.liveness},
+      'valence': #{features.valence},
+      'tempo': #{features.tempo}
+    }
+    for (var key in features) {
+    if (key === 'tempo') {
+    fields = [{
+    value: Math.round(features[key]),
+    size: 240,
+    label: ''
+    }];
+    ratio = fields[0].value / 240;
+    sentiment = ratio < 0.33 ? 'negative' : ratio < 0.66 ? 'moderate' : 'positive';
+    }
+    else {
+    fields = [{
+    value: Math.round(features[key]*100),
+    size: 100,
+    label: "%"
+    }];
+    ratio = fields[0].value;
+    sentiment = ratio < 35 ? 'negative' : ratio < 70 ? 'moderate' : 'positive';
+    }
+    svg = d3.selectAll("div.mdc-list-item__end-detail#"+key).append("svg")
+    .attr("width", width)
+    .attr("height", height);
+    field = svg.selectAll("div.mdc-list-item__end-detail#"+key)
+    .data(fields)
+    .enter().append("g")
+    .attr("transform", function(d, i) { return "translate(" + (i * 2 + 1.25) / 6.5 * width + "," + height / 2 + ")"; })
+    .attr("class", "field");
+    field.append("path")
+    .attr("class", "path path--background")
+    .attr("d", defaultArc);
+    path = field.append("path")
+    .attr("class", "path path--foreground " + sentiment);
+    label = field.append("text")
+    .attr("class", "label")
+    .attr("dy", ".35em");
+    field
+    .each(function(d) { d.previous = 0, d.value = d.value; });
+    path.transition()
+    .ease("elastic")
+    .duration(6000)
+    .attrTween("d", arcTween);
+    label
+    .text(function(d) { return d.value + d.label; });
+    console.log(fields)
+    }
+    function arcTween(b) {
+    var i = d3.interpolate({value: b.previous}, b);
+    return function(t) {
+    return arc(i(t));
+    };
+    }

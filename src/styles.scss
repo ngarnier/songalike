@@ -1,0 +1,72 @@
+$green: #00CC44;
+$background:#efefef;
+$h3: #333;
+
+body {
+  background-color: $background;
+  --mdc-theme-primary: $green;
+}
+
+h2,
+h3,
+form {
+  text-align: center
+}
+h3 {
+  color: $h3;
+  a {
+    color: inherit;
+  }
+}
+
+h2 {
+  color: $green;
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+// Input on the home
+fieldset {
+  border: none;
+}
+
+
+.container {
+  margin: 0 auto;
+  max-width: 600px
+}
+
+
+// Features
+p#error {
+  text-align: center
+}
+
+.emoji {
+  font-size: 40px;
+  margin-right: 15px;
+}
+
+.path--background {
+  fill: #ddd;
+}
+
+.positive {
+  fill: $green;
+}
+
+.moderate {
+  fill: orange;
+}
+
+.negative {
+  fill: red;
+}
+
+.label {
+  font: 12px sans-serif;
+  text-anchor: middle;
+  fill: black;
+}

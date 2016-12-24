@@ -1,0 +1,21 @@
+extends head
+block content
+
+  body
+    div.container
+      h2.mdc-typography--display2 songalike.
+      form(method='get', action='/track_search')
+        fieldset
+          .mdc-textfield(data-mdc-auto-init='MDCTextfield')
+            label.mdc-textfield__label(for='track_artist') Artist
+            input#track_artist.mdc-textfield__input(type='text', name='track_artist')
+          span(style={margin:'10px'})
+          .mdc-textfield(data-mdc-auto-init='MDCTextfield')
+            label.mdc-textfield__label(for='track_title') Track title
+            input#track_title.mdc-textfield__input(type='text', name='track_title')
+          br
+          button.mdc-button.mdc-button--raised.mdc-theme--primary-bg.mdc-button--primary(type='submit')
+            | Get the track info
+    script(src='../node_modules/material-components-web/dist/material-components-web.js')
+    script.
+      mdc.autoInit()

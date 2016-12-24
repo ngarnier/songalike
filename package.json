@@ -1,0 +1,25 @@
+{
+  "name": "songalike",
+  "version": "1.0.0",
+  "description": "A service to find similar songs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "sound",
+    "song",
+    "music"
+  ],
+  "author": "Nicolas Garnier",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.9.2",
+    "cookie-parser": "1.3.2",
+    "express": "^4.0.0",
+    "material-components-web": "^0.1.1",
+    "pug": "^2.0.0-beta6",
+    "querystring": "^0.2.0",
+    "request": "^2.34.0"
+  }
+}
