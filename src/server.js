@@ -12,7 +12,7 @@ import request from 'request'; // "Request" library
 import querystring from 'querystring'
 import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
-import {spotify as credentials} from './credentials';
+// import {spotify as credentials} from './credentials';
 
 const port = process.env.PORT || 8080
 
