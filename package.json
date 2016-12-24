@@ -5,8 +5,7 @@
   "main": "compiled-server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel src/server.js --out-file server.js",
-    "start": "node server.js"
+    "start": "babel-node server.js",
   },
   "keywords": [
     "sound",

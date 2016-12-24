@@ -1,30 +1,3 @@
-'use strict';
-
-var _express = require('express');
-
-var _express2 = _interopRequireDefault(_express);
-
-var _request = require('request');
-
-var _request2 = _interopRequireDefault(_request);
-
-var _querystring = require('querystring');
-
-var _querystring2 = _interopRequireDefault(_querystring);
-
-var _cookieParser = require('cookie-parser');
-
-var _cookieParser2 = _interopRequireDefault(_cookieParser);
-
-var _bodyParser = require('body-parser');
-
-var _bodyParser2 = _interopRequireDefault(_bodyParser);
-
-var _credentials = require('./credentials');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// "Request" library
 /**
 * This is an example of a basic node.js script that performs
 * the Authorization Code oAuth2 flow to authenticate against
@@ -34,115 +7,120 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
 */
 
-var client_id = _credentials.spotify.client_id,
-    // Your client id
-client_secret = _credentials.spotify.client_secret,
-    // Your secret
-redirect_uri = 'http://localhost:8888/callback',
-    // Your redirect uri
-spotifyBaseUrl = 'https://api.spotify.com',
-    spotifyAudioAnalysis = '/v1/audio-features/',
-    spotifySearch = '/v1/search'; // Express web server framework
+import express from 'express'; // Express web server framework
+import request from 'request'; // "Request" library
+import querystring from 'querystring'
+import cookieParser from 'cookie-parser'
+import bodyParser from 'body-parser'
+import {spotify as credentials} from './credentials';
 
-var access_token = void 0,
-    refresh_token = void 0;
+const port = process.env.PORT || 8080
 
-var stateKey = 'spotify_auth_state';
+const client_id = credentials.client_id, // Your client id
+  client_secret = credentials.client_secret, // Your secret
+  redirect_uri = 'http://localhost:8888/callback', // Your redirect uri
+  spotifyBaseUrl = 'https://api.spotify.com',
+  spotifyAudioAnalysis = '/v1/audio-features/',
+  spotifySearch = '/v1/search'
+let access_token,
+refresh_token
 
-var app = (0, _express2.default)();
-app.use(_bodyParser2.default.json()); // support json encoded bodies
-app.use(_bodyParser2.default.urlencoded({ extended: true })); // support encoded bodies
+const stateKey = 'spotify_auth_state';
 
-app.set('view engine', 'pug');
+const app = express();
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
-app.use(_express2.default.static(__dirname + '/public'));
-app.use(_express2.default.static(__dirname)).use((0, _cookieParser2.default)());
+app.set('view engine', 'pug')
 
-app.get('/', function (req, res) {
-  res.render('index');
-});
+app.use(express.static(__dirname + '/public'))
+app.use(express.static(__dirname))
+.use(cookieParser());
 
-app.get('/search', function (req, res) {
-  var title = encodeURI(req.query.title);
-  var artist = encodeURI(req.query.artist);
-  console.log('title: ' + title);
+app.get('/', (req, res) => {
+  res.render('index')
+})
 
-  // Searching for the song
-  var options = {
-    url: '' + spotifyBaseUrl + spotifySearch + '?q=track:' + title + '%20artist:' + artist + '&type=track',
-    headers: {
-      //'Authorization': 'Bearer ' + token
-    },
-    json: true
-  };
-
-  var callback = function callback(error, response, body) {
-    if (!error) {
-      if (typeof body.tracks.items["0"] === 'undefined') {
-        res.render('index', {
-          message: 'Sorry, we couldn\'t find your song.',
-          message2: 'Please try again with the exact Artist and Title names.'
-        });
-      } else {
-        var authOptions;
-
-        (function () {
-          // Log the first result in the response
-          var id = body.tracks.items["0"].id;
-          var track = body.tracks.items["0"].name;
-          var artist = body.tracks.items[0].album.artists[0].name;
-          console.log('Song ID:' + id + ' for ' + track + ' by ' + artist);
-          // Authenticate to get the Track features
-          authOptions = {
-            url: 'https://accounts.spotify.com/api/token',
-            headers: {
-              'Authorization': 'Basic ' + new Buffer(client_id + ':' + client_secret).toString('base64')
-            },
-            form: {
-              grant_type: 'client_credentials'
-            },
-            json: true
-          };
+app.get('/search', (req, res) => {
+     let title = encodeURI(req.query.title)
+     let artist = encodeURI(req.query.artist)
+     console.log(`title: ${title}`)
 
 
-          _request2.default.post(authOptions, function (error, response, body) {
-            if (!error && response.statusCode === 200) {
-              // Use the access token to access the audio features
-              var token = body.access_token;
-              var _options = {
-                url: '' + spotifyBaseUrl + spotifyAudioAnalysis + id,
+     // Searching for the song
+       const options = {
+         url: `${spotifyBaseUrl}${spotifySearch}?q=track:${title}%20artist:${artist}&type=track`,
+         headers: {
+           //'Authorization': 'Bearer ' + token
+         },
+         json: true
+       }
+
+       const callback = (error, response, body) => {
+         if (!error) {
+           if(typeof body.tracks.items["0"] === 'undefined') {
+             res.render('index', {
+               message: `Sorry, we couldn't find your song.`,
+               message2: `Please try again with the exact Artist and Title names.`
+             })
+           }
+           else {
+             // Log the first result in the response
+             let id = body.tracks.items["0"].id
+             let track = body.tracks.items["0"].name
+             let artist = body.tracks.items[0].album.artists[0].name
+             console.log(`Song ID:${id} for ${track} by ${artist}`)
+             // Authenticate to get the Track features
+              var authOptions = {
+                url: 'https://accounts.spotify.com/api/token',
                 headers: {
-                  'Authorization': 'Bearer ' + token
+                  'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
+                },
+                form: {
+                  grant_type: 'client_credentials'
                 },
                 json: true
               };
 
-              var _callback = function _callback(error, response, body) {
-                if (!error) {
-                  var features = body;
-                  console.log(features);
-                  res.render('features', {
-                    status: 'Song found',
-                    track: track,
-                    artist: artist,
-                    features: features
-                  });
-                } else {
-                  console.log(error); // Error from Spotify API
+              request.post(authOptions, function(error, response, body) {
+                if (!error && response.statusCode === 200) {
+                  // Use the access token to access the audio features
+                  var token = body.access_token;
+                  const options = {
+                    url: `${spotifyBaseUrl}${spotifyAudioAnalysis}${id}`,
+                    headers: {
+                      'Authorization': 'Bearer ' + token
+                    },
+                    json: true
+                  }
+
+                  const callback = (error, response, body) => {
+                    if (!error) {
+                      let features = body
+                      console.log(features)
+                      res.render('features', {
+                        status: `Song found`,
+                        track: track,
+                        artist: artist,
+                        features: features
+                      })
+                    }
+                    else {
+                      console.log(error) // Error from Spotify API
+                    }
+                  }
+
+                  request(options, callback)
                 }
-              };
+              })
+           }
+         }
+         else {
+           console.log(error) // Error when searching the song
+         }
+       }
+       request(options, callback)
+})
 
-              (0, _request2.default)(_options, _callback);
-            }
-          });
-        })();
-      }
-    } else {
-      console.log(error); // Error when searching the song
-    }
-  };
-  (0, _request2.default)(options, callback);
-});
-
-console.log('Listening on 8888');
-app.listen(8888);
+console.log(`Server listening on ${port}`)
+app.listen(port);
