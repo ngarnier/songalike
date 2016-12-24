@@ -37,10 +37,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var port = process.env.PORT || 8080; // Express web server framework
 
 
-var client_id = _credentials.spotify.client_id,
-    // Your client id
-client_secret = _credentials.spotify.client_secret,
-    // Your secret
+var client_id = '044216bdc27d49e6b6cdf7f9ee469ef7',
+    client_secret = 'eb91bc0ad00842638772d54f7696f8cf',
+
+// client_id = credentials.client_id, // Your client id
+// client_secret = credentials.client_secret, // Your secret
 redirect_uri = 'http://localhost:8888/callback',
     // Your redirect uri
 spotifyBaseUrl = 'https://api.spotify.com',
