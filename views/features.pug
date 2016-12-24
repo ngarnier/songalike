@@ -7,8 +7,18 @@ block content
         a(href="./") songalike.
       h3
         a(href=`${features.uri}`) #{track} by #{artist}
+        | &nbsp;(
+        a(href="#")#genius-modal lyrics
+        | )
       center(style="height: 80px")
+        // Spotify iframe
         iframe(src=`https://embed.spotify.com/?uri=${features.uri}&theme=white`, frameborder="0", width="380px")
+        // Genius modal
+        div#myModal.modal
+          div.modal-content
+            span.close &times;
+            div#rg_embed_link_2890553.rg_embed_link(data-song-id='2890553')
+            script(crossorigin, src='//genius.com/songs/2890553/embed.js')
       ul.mdc-list.mdc-list--two-line.mdc-list--avatar-list.two-line-avatar-text-icon-demo
         li.mdc-list-item
           span.emoji 💃
@@ -62,9 +72,10 @@ block content
 
   script(src='../node_modules/material-components-web/dist/material-components-web.js')
   script(src='https://d3js.org/d3.v3.min.js')
+  script(src="public/modal.js")
   script.
     mdc.autoInit()
-    var width = 150,
+    var width = 40,
     height = 60;
     var arc = d3.svg.arc()
     .innerRadius(18)
