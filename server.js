@@ -40,13 +40,10 @@ app.get('/', (req, res) => {
   res.render('index')
 })
 
-app.get('/d3', (req, res) => {
-  res.render('d3')
-})
-
-app.get('/track_search', (req, res) => {
-     let title = encodeURI(req.query.track_title)
-     let artist = encodeURI(req.query.track_artist)
+app.get('/search', (req, res) => {
+     let title = encodeURI(req.query.title)
+     let artist = encodeURI(req.query.artist)
+     console.log(`title: ${title}`)
 
 
      // Searching for the song
@@ -61,7 +58,10 @@ app.get('/track_search', (req, res) => {
        const callback = (error, response, body) => {
          if (!error) {
            if(typeof body.tracks.items["0"] === 'undefined') {
-             res.render('features', { message: `Couldn't find your song, please check the spelling`})
+             res.render('index', {
+               message: `Sorry, we couldn't find your song.`,
+               message2: `Please try again with the exact Artist and Title names.`
+             })
            }
            else {
              // Log the first result in the response
@@ -98,6 +98,7 @@ app.get('/track_search', (req, res) => {
                       let features = body
                       console.log(features)
                       res.render('features', {
+                        status: `Song found`,
                         track: track,
                         artist: artist,
                         features: features

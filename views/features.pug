@@ -5,61 +5,60 @@ block content
     div.container
       h2.mdc-typography--display2
         a(href="./") songalike.
-      if message
-        p#error= message
-      else
-        h3
-          a(href=`${features.uri}`) #{track} by #{artist}
-        ul.mdc-list.mdc-list--two-line.mdc-list--avatar-list.two-line-avatar-text-icon-demo
-          li.mdc-list-item
-            span.emoji 💃
-            span.mdc-list-item__text
-              span.mdc-list-item__text__primary Danceability
-              span.mdc-list-item__text__secondary How suitable a track is for dancing.
-            div.mdc-list-item__end-detail#danceability
-          li.mdc-list-item
-            span.emoji 🔥
-            span.mdc-list-item__text
-              span.mdc-list-item__text__primary Energy
-              span.mdc-list-item__text__secondary A measure representing a perceptual measure of intensity and activity.
-            div.mdc-list-item__end-detail#energy
-          li.mdc-list-item
-            span.emoji 🗯
-            span.mdc-list-item__text
-              span.mdc-list-item__text__primary Speechiness
-              span.mdc-list-item__text__secondary Speechiness detects the presence of spoken words in a track.
-            div.mdc-list-item__end-detail#speechiness
-          li.mdc-list-item
-            span.emoji 🎸
-            span.mdc-list-item__text
-              span.mdc-list-item__text__primary Acousticness
-              span.mdc-list-item__text__secondary Whether the track is acoustic, 1 being fully acoustic.
-            div.mdc-list-item__end-detail#acousticness
-          li.mdc-list-item
-            span.emoji 🎹
-            span.mdc-list-item__text
-              span.mdc-list-item__text__primary Instrumentalness
-              span.mdc-list-item__text__secondary Whether a track contains, 1 being without any vocals.
-            div.mdc-list-item__end-detail#instrumentalness
-          li.mdc-list-item
-            span.emoji 🎟
-            span.mdc-list-item__text
-              span.mdc-list-item__text__primary Liveness
-              span.mdc-list-item__text__secondary Detects the presence of an audience in the recording.
-            div.mdc-list-item__end-detail#liveness
-          li.mdc-list-item
-            span.emoji 🎭
-            span.mdc-list-item__text
-              span.mdc-list-item__text__primary Valence
-              span.mdc-list-item__text__secondary Positiveness of the track. The closer to 1, the happier.
-            div.mdc-list-item__end-detail#valence
-          li.mdc-list-item
-            span.emoji 🐌
-            span.mdc-list-item__text
-              span.mdc-list-item__text__primary Tempo
-              span.mdc-list-item__text__secondary The overall estimated tempo of a track in beats per minute (BPM).
-            div.mdc-list-item__end-detail#tempo
-    div#circles
+      h3
+        a(href=`${features.uri}`) #{track} by #{artist}
+      center(style="height: 80px")
+        iframe(src=`https://embed.spotify.com/?uri=${features.uri}&theme=white`, frameborder="0", width="380px")
+      ul.mdc-list.mdc-list--two-line.mdc-list--avatar-list.two-line-avatar-text-icon-demo
+        li.mdc-list-item
+          span.emoji 💃
+          span.mdc-list-item__text
+            span.mdc-list-item__text__primary Danceability
+            span.mdc-list-item__text__secondary How suitable a track is for dancing.
+          div.mdc-list-item__end-detail#danceability
+        li.mdc-list-item
+          span.emoji 🔥
+          span.mdc-list-item__text
+            span.mdc-list-item__text__primary Energy
+            span.mdc-list-item__text__secondary A measure representing a perceptual measure of intensity and activity.
+          div.mdc-list-item__end-detail#energy
+        li.mdc-list-item
+          span.emoji 🗯
+          span.mdc-list-item__text
+            span.mdc-list-item__text__primary Speechiness
+            span.mdc-list-item__text__secondary Speechiness detects the presence of spoken words in a track.
+          div.mdc-list-item__end-detail#speechiness
+        li.mdc-list-item
+          span.emoji 🎸
+          span.mdc-list-item__text
+            span.mdc-list-item__text__primary Acousticness
+            span.mdc-list-item__text__secondary Whether the track is acoustic, 1 being fully acoustic.
+          div.mdc-list-item__end-detail#acousticness
+        li.mdc-list-item
+          span.emoji 🎹
+          span.mdc-list-item__text
+            span.mdc-list-item__text__primary Instrumentalness
+            span.mdc-list-item__text__secondary Whether a track contains, 1 being without any vocals.
+          div.mdc-list-item__end-detail#instrumentalness
+        li.mdc-list-item
+          span.emoji 🎟
+          span.mdc-list-item__text
+            span.mdc-list-item__text__primary Liveness
+            span.mdc-list-item__text__secondary Detects the presence of an audience in the recording.
+          div.mdc-list-item__end-detail#liveness
+        li.mdc-list-item
+          span.emoji 🎭
+          span.mdc-list-item__text
+            span.mdc-list-item__text__primary Valence
+            span.mdc-list-item__text__secondary Positiveness of the track. The closer to 1, the happier.
+          div.mdc-list-item__end-detail#valence
+        li.mdc-list-item
+          span.emoji 🐌
+          span.mdc-list-item__text
+            span.mdc-list-item__text__primary Tempo
+            span.mdc-list-item__text__secondary The overall estimated tempo of a track in beats per minute (BPM).
+          div.mdc-list-item__end-detail#tempo
+  div#circles
 
   script(src='../node_modules/material-components-web/dist/material-components-web.js')
   script(src='https://d3js.org/d3.v3.min.js')
@@ -95,7 +94,6 @@ block content
     label: ''
     }];
     ratio = fields[0].value / 240;
-    sentiment = ratio < 0.33 ? 'negative' : ratio < 0.66 ? 'moderate' : 'positive';
     }
     else {
     fields = [{
@@ -103,9 +101,9 @@ block content
     size: 100,
     label: "%"
     }];
-    ratio = fields[0].value;
-    sentiment = ratio < 35 ? 'negative' : ratio < 70 ? 'moderate' : 'positive';
+    ratio = fields[0].value / 100;
     }
+    sentiment = ratio < 0.33 ? 'negative' : ratio < 0.66 ? 'moderate' : 'positive';
     svg = d3.selectAll("div.mdc-list-item__end-detail#"+key).append("svg")
     .attr("width", width)
     .attr("height", height);

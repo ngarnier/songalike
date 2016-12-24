@@ -4,15 +4,20 @@ block content
   body
     div.container
       h2.mdc-typography--display2 songalike.
-      form(method='get', action='/track_search')
+      if message
+        p#error
+          | #{message}
+          br
+          | #{message2}
+      form(method='get', action='/search')
         fieldset
           .mdc-textfield(data-mdc-auto-init='MDCTextfield')
-            label.mdc-textfield__label(for='track_artist') Artist
-            input#track_artist.mdc-textfield__input(type='text', name='track_artist')
+            label.mdc-textfield__label(for='artist') Artist
+            input#artist.mdc-textfield__input(type='text', name='artist')
           span(style={margin:'10px'})
           .mdc-textfield(data-mdc-auto-init='MDCTextfield')
-            label.mdc-textfield__label(for='track_title') Track title
-            input#track_title.mdc-textfield__input(type='text', name='track_title')
+            label.mdc-textfield__label(for='title') Track title
+            input#title.mdc-textfield__input(type='text', name='title')
           br
           button.mdc-button.mdc-button--raised.mdc-theme--primary-bg.mdc-button--primary(type='submit')
             | Get the track info

@@ -3,8 +3,8 @@ $background:#efefef;
 $h3: #333;
 
 body {
-  background-color: $background;
-  --mdc-theme-primary: $green;
+  background-color: #{$background};
+  --mdc-theme-primary: #{$green};
 }
 
 h2,
@@ -54,7 +54,7 @@ p#error {
 }
 
 .positive {
-  fill: $green;
+  fill: #{$green};
 }
 
 .moderate {
