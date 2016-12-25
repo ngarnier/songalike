@@ -20,10 +20,13 @@ var _bodyParser = require('body-parser');
 
 var _bodyParser2 = _interopRequireDefault(_bodyParser);
 
+var _requestPromise = require('request-promise');
+
+var _requestPromise2 = _interopRequireDefault(_requestPromise);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// Express web server framework
-var port = process.env.PORT || 8080; // "Request" library
+// "Request" library
 /**
 * This is an example of a basic node.js script that performs
 * the Authorization Code oAuth2 flow to authenticate against
@@ -32,6 +35,9 @@ var port = process.env.PORT || 8080; // "Request" library
 * For more information, read
 * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
 */
+
+var port = process.env.PORT || 8080; // Express web server framework
+
 
 var client_id = process.env["SPOTIFY_ID"],
     client_secret = process.env["SPOTIFY_SECRET"],
@@ -61,7 +67,6 @@ app.get('/', function (req, res) {
 app.get('/search', function (req, res) {
   var title = encodeURI(req.query.title);
   var artist = encodeURI(req.query.artist);
-  console.log('title: ' + title);
 
   // Searching for the song
   var options = {
@@ -72,14 +77,17 @@ app.get('/search', function (req, res) {
     json: true
   };
 
-  var callback = function callback(error, response, body) {
-    if (!error) {
-      if (typeof body.tracks.items["0"] === 'undefined') {
-        res.render('index', {
-          message: 'Sorry, we couldn\'t find your song.',
-          instruction: 'Please try again with the exact Artist and Title names.'
-        });
-      } else {
+  (0, _requestPromise2.default)(options) // Make the request to look for the song
+  .then(function (body) {
+    // If the API returns something but not a list of songs as we're expecting
+    if (typeof body.tracks.items["0"] === 'undefined') {
+      res.render('index', {
+        message: 'Sorry, we couldn\'t find your song.',
+        instruction: 'Please try again with the exact Artist and Title names.'
+      });
+    }
+    // If the API returns a list of songs as expected
+    else {
         var authOptions;
 
         (function () {
@@ -100,44 +108,43 @@ app.get('/search', function (req, res) {
             json: true
           };
 
+          // Authenticate on the API
 
-          _request2.default.post(authOptions, function (error, response, body) {
-            if (!error && response.statusCode === 200) {
-              // Use the access token to access the audio features
-              var token = body.access_token;
-              var _options = {
-                url: '' + spotifyBaseUrl + spotifyAudioAnalysis + id,
-                headers: {
-                  'Authorization': 'Bearer ' + token
-                },
-                json: true
-              };
+          _requestPromise2.default.post(authOptions).then(function (body) {
+            // Use the access token in the request for the audio features
+            var token = body.access_token;
+            var options = {
+              url: '' + spotifyBaseUrl + spotifyAudioAnalysis + id,
+              headers: {
+                'Authorization': 'Bearer ' + token
+              },
+              json: true
+            };
 
-              var _callback = function _callback(error, response, body) {
-                if (!error) {
-                  var features = body;
-                  console.log(features);
-                  res.render('features', {
-                    status: 'Song found',
-                    track: track,
-                    artist: artist,
-                    features: features
-                  });
-                } else {
-                  console.log(error); // Error from Spotify API
-                }
-              };
-
-              (0, _request2.default)(_options, _callback);
-            }
+            // Make the request to get the Song's features
+            (0, _requestPromise2.default)(options).then(function (body) {
+              var features = body;
+              console.log(features);
+              res.render('features', {
+                status: 'Song found',
+                track: track,
+                artist: artist,
+                features: features
+              });
+            }).catch(function (error) {
+              console.log(error); // Error from Spotify API
+            });
+          }).catch(function (error) {
+            console.log(error);
           });
+
+          if (!error && response.statusCode === 200) {}
+          //end
         })();
       }
-    } else {
-      console.log(error); // Error when searching the song
-    }
-  };
-  (0, _request2.default)(options, callback);
+  }).catch(function (err) {
+    console.log(err); // Error when searching the song
+  });
 });
 
 console.log('Server listening on ' + port);

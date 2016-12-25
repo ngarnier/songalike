@@ -12,6 +12,7 @@ import request from 'request'; // "Request" library
 import querystring from 'querystring'
 import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
+import rp from 'request-promise'
 
 const port = process.env.PORT || 8080
 
@@ -43,8 +44,6 @@ app.get('/', (req, res) => {
 app.get('/search', (req, res) => {
      let title = encodeURI(req.query.title)
      let artist = encodeURI(req.query.artist)
-     console.log(`title: ${title}`)
-
 
      // Searching for the song
        const options = {
@@ -55,70 +54,76 @@ app.get('/search', (req, res) => {
          json: true
        }
 
-       const callback = (error, response, body) => {
-         if (!error) {
-           if(typeof body.tracks.items["0"] === 'undefined') {
-             res.render('index', {
-               message: `Sorry, we couldn't find your song.`,
-               instruction: `Please try again with the exact Artist and Title names.`
-             })
-           }
-           else {
-             // Log the first result in the response
-             let id = body.tracks.items["0"].id
-             let track = body.tracks.items["0"].name
-             let artist = body.tracks.items[0].album.artists[0].name
-             console.log(`Song ID:${id} for ${track} by ${artist}`)
-             // Authenticate to get the Track features
-              var authOptions = {
-                url: 'https://accounts.spotify.com/api/token',
-                headers: {
-                  'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
-                },
-                form: {
-                  grant_type: 'client_credentials'
-                },
-                json: true
-              };
+       rp(options) // Make the request to look for the song
+           .then(body => {
+             // If the API returns something but not a list of songs as we're expecting
+             if(typeof body.tracks.items["0"] === 'undefined') {
+               res.render('index', {
+                 message: `Sorry, we couldn't find your song.`,
+                 instruction: `Please try again with the exact Artist and Title names.`
+               })
+             }
+             // If the API returns a list of songs as expected
+             else {
+               // Log the first result in the response
+               let id = body.tracks.items["0"].id
+               let track = body.tracks.items["0"].name
+               let artist = body.tracks.items[0].album.artists[0].name
+               console.log(`Song ID:${id} for ${track} by ${artist}`)
+               // Authenticate to get the Track features
+                var authOptions = {
+                  url: 'https://accounts.spotify.com/api/token',
+                  headers: {
+                    'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
+                  },
+                  form: {
+                    grant_type: 'client_credentials'
+                  },
+                  json: true
+                };
 
-              request.post(authOptions, function(error, response, body) {
-                if (!error && response.statusCode === 200) {
-                  // Use the access token to access the audio features
-                  var token = body.access_token;
-                  const options = {
-                    url: `${spotifyBaseUrl}${spotifyAudioAnalysis}${id}`,
-                    headers: {
-                      'Authorization': 'Bearer ' + token
-                    },
-                    json: true
-                  }
+                // Authenticate on the API
+                rp.post(authOptions)
+                  .then(body => {
+                    // Use the access token in the request for the audio features
+                    var token = body.access_token;
+                    const options = {
+                      url: `${spotifyBaseUrl}${spotifyAudioAnalysis}${id}`,
+                      headers: {
+                        'Authorization': 'Bearer ' + token
+                      },
+                      json: true
+                    }
 
-                  const callback = (error, response, body) => {
-                    if (!error) {
-                      let features = body
-                      console.log(features)
-                      res.render('features', {
-                        status: `Song found`,
-                        track: track,
-                        artist: artist,
-                        features: features
+                    // Make the request to get the Song's features
+                    rp(options)
+                      .then(body => {
+                          let features = body
+                          console.log(features)
+                          res.render('features', {
+                            status: `Song found`,
+                            track: track,
+                            artist: artist,
+                            features: features
+                          })
                       })
-                    }
-                    else {
-                      console.log(error) // Error from Spotify API
-                    }
-                  }
+                      .catch(error => {
+                        console.log(error) // Error from Spotify API
+                      })
+                  })
+                  .catch(error => {
+                    console.log(error)
+                  })
 
-                  request(options, callback)
-                }
-              })
-           }
-         }
-         else {
-           console.log(error) // Error when searching the song
-         }
-       }
-       request(options, callback)
+
+                  if (!error && response.statusCode === 200) {
+                    }
+                //end
+              }
+           })
+           .catch(err => {
+              console.log(err) // Error when searching the song
+           });
 })
 
 console.log(`Server listening on ${port}`)
