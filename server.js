@@ -27,15 +27,6 @@ var _requestPromise2 = _interopRequireDefault(_requestPromise);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // "Request" library
-/**
-* This is an example of a basic node.js script that performs
-* the Authorization Code oAuth2 flow to authenticate against
-* the Spotify Accounts.
-*
-* For more information, read
-* https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
-*/
-
 var port = process.env.PORT || 8080; // Express web server framework
 
 
@@ -45,9 +36,11 @@ var client_id = process.env["SPOTIFY_ID"],
     // Your redirect uri
 spotifyBaseUrl = 'https://api.spotify.com',
     spotifyAudioAnalysis = '/v1/audio-features/',
-    spotifySearch = '/v1/search';
+    spotifySearch = '/v1/search',
+    genius_token = process.env["GENIUS_TOKEN"];
 var access_token = void 0,
     refresh_token = void 0;
+var path = "No lyrics found";
 
 var stateKey = 'spotify_auth_state';
 
@@ -71,9 +64,6 @@ app.get('/search', function (req, res) {
   // Searching for the song
   var options = {
     url: '' + spotifyBaseUrl + spotifySearch + '?q=track:' + title + '%20artist:' + artist + '&type=track',
-    headers: {
-      //'Authorization': 'Bearer ' + token
-    },
     json: true
   };
 
@@ -88,58 +78,109 @@ app.get('/search', function (req, res) {
     }
     // If the API returns a list of songs as expected
     else {
-        var authOptions;
-
         (function () {
           // Log the first result in the response
           var id = body.tracks.items["0"].id;
           var track = body.tracks.items["0"].name;
           var artist = body.tracks.items[0].album.artists[0].name;
-          console.log('Song ID:' + id + ' for ' + track + ' by ' + artist);
-          // Authenticate to get the Track features
-          authOptions = {
-            url: 'https://accounts.spotify.com/api/token',
+          console.log('Spotify:' + id + ' for ' + track + ' by ' + artist);
+          var genius_options = {
+            url: 'https://api.genius.com/search?q=' + artist + '%20' + track,
             headers: {
-              'Authorization': 'Basic ' + new Buffer(client_id + ':' + client_secret).toString('base64')
+              'Authorization': 'Bearer ' + genius_token
             },
-            form: {
-              grant_type: 'client_credentials'
-            },
-            json: true
+            json: true,
+            timeout: 1000
           };
 
-          // Authenticate on the API
-
-          _requestPromise2.default.post(authOptions).then(function (body) {
-            // Use the access token in the request for the audio features
-            var token = body.access_token;
-            var options = {
-              url: '' + spotifyBaseUrl + spotifyAudioAnalysis + id,
+          (0, _requestPromise2.default)(genius_options).then(function (song) {
+            console.log('Genius ID: ' + song.response.hits[0].result.id + ' for ' + song.response.hits[0].result.full_title);
+            path = song.response.hits[0].result.api_path;
+            // Authenticate to get the Track features
+            var authOptions = {
+              url: 'https://accounts.spotify.com/api/token',
               headers: {
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Basic ' + new Buffer(client_id + ':' + client_secret).toString('base64')
+              },
+              form: {
+                grant_type: 'client_credentials'
               },
               json: true
             };
 
-            // Make the request to get the Song's features
-            (0, _requestPromise2.default)(options).then(function (body) {
-              var features = body;
-              console.log(features);
-              res.render('features', {
-                status: 'Song found',
-                track: track,
-                artist: artist,
-                features: features
+            // Authenticate on the API
+            _requestPromise2.default.post(authOptions).then(function (body) {
+              // Use the access token in the request for the audio features
+              var token = body.access_token;
+              var options = {
+                url: '' + spotifyBaseUrl + spotifyAudioAnalysis + id,
+                headers: {
+                  'Authorization': 'Bearer ' + token
+                },
+                json: true
+              };
+
+              // Make the request to get the Song's features
+              (0, _requestPromise2.default)(options).then(function (body) {
+                var features = body;
+                // Send the results with the lyrics
+                res.render('features', {
+                  status: 'Song found',
+                  track: track,
+                  artist: artist,
+                  features: features,
+                  path: path
+                });
+              }).catch(function (error) {
+                console.log(error); // Error from Spotify API
               });
             }).catch(function (error) {
-              console.log(error); // Error from Spotify API
+              console.log(error);
             });
           }).catch(function (error) {
-            console.log(error);
-          });
+            console.log('No lyrics found');
+            path = "No lyrics found";
+            var authOptions = {
+              url: 'https://accounts.spotify.com/api/token',
+              headers: {
+                'Authorization': 'Basic ' + new Buffer(client_id + ':' + client_secret).toString('base64')
+              },
+              form: {
+                grant_type: 'client_credentials'
+              },
+              json: true
+            };
 
-          if (!error && response.statusCode === 200) {}
-          //end
+            // Authenticate on the API
+            _requestPromise2.default.post(authOptions).then(function (body) {
+              // Use the access token in the request for the audio features
+              var token = body.access_token;
+              var options = {
+                url: '' + spotifyBaseUrl + spotifyAudioAnalysis + id,
+                headers: {
+                  'Authorization': 'Bearer ' + token
+                },
+                json: true
+              };
+
+              // Make the request to get the Song's features
+              (0, _requestPromise2.default)(options).then(function (body) {
+                var features = body;
+                // Send the results without the lyrics
+                res.render('features', {
+                  status: 'Song found',
+                  track: track,
+                  artist: artist,
+                  features: features,
+                  path: path
+                });
+              }).catch(function (error) {
+                console.log(error); // Error from Spotify API
+              });
+            }).catch(function (error) {
+              console.log(error);
+            });
+          });
         })();
       }
   }).catch(function (err) {

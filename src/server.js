@@ -1,12 +1,3 @@
-/**
-* This is an example of a basic node.js script that performs
-* the Authorization Code oAuth2 flow to authenticate against
-* the Spotify Accounts.
-*
-* For more information, read
-* https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
-*/
-
 import express from 'express'; // Express web server framework
 import request from 'request'; // "Request" library
 import querystring from 'querystring'
@@ -17,13 +8,15 @@ import rp from 'request-promise'
 const port = process.env.PORT || 8080
 
 const client_id = process.env["SPOTIFY_ID"],
-  client_secret = process.env["SPOTIFY_SECRET"],
-  redirect_uri = 'http://localhost:8888/callback', // Your redirect uri
-  spotifyBaseUrl = 'https://api.spotify.com',
-  spotifyAudioAnalysis = '/v1/audio-features/',
-  spotifySearch = '/v1/search'
+client_secret = process.env["SPOTIFY_SECRET"],
+redirect_uri = 'http://localhost:8888/callback', // Your redirect uri
+spotifyBaseUrl = 'https://api.spotify.com',
+spotifyAudioAnalysis = '/v1/audio-features/',
+spotifySearch = '/v1/search',
+genius_token = process.env["GENIUS_TOKEN"]
 let access_token,
 refresh_token
+let path = "No lyrics found"
 
 const stateKey = 'spotify_auth_state';
 
@@ -42,88 +35,144 @@ app.get('/', (req, res) => {
 })
 
 app.get('/search', (req, res) => {
-     let title = encodeURI(req.query.title)
-     let artist = encodeURI(req.query.artist)
+  let title = encodeURI(req.query.title)
+  let artist = encodeURI(req.query.artist)
 
-     // Searching for the song
-       const options = {
-         url: `${spotifyBaseUrl}${spotifySearch}?q=track:${title}%20artist:${artist}&type=track`,
-         headers: {
-           //'Authorization': 'Bearer ' + token
-         },
-         json: true
-       }
+  // Searching for the song
+  const options = {
+    url: `${spotifyBaseUrl}${spotifySearch}?q=track:${title}%20artist:${artist}&type=track`,
+    json: true
+  }
 
-       rp(options) // Make the request to look for the song
-           .then(body => {
-             // If the API returns something but not a list of songs as we're expecting
-             if(typeof body.tracks.items["0"] === 'undefined') {
-               res.render('index', {
-                 message: `Sorry, we couldn't find your song.`,
-                 instruction: `Please try again with the exact Artist and Title names.`
-               })
-             }
-             // If the API returns a list of songs as expected
-             else {
-               // Log the first result in the response
-               let id = body.tracks.items["0"].id
-               let track = body.tracks.items["0"].name
-               let artist = body.tracks.items[0].album.artists[0].name
-               console.log(`Song ID:${id} for ${track} by ${artist}`)
-               // Authenticate to get the Track features
-                var authOptions = {
-                  url: 'https://accounts.spotify.com/api/token',
-                  headers: {
-                    'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
-                  },
-                  form: {
-                    grant_type: 'client_credentials'
-                  },
-                  json: true
-                };
+  rp(options) // Make the request to look for the song
+  .then(body => {
+    // If the API returns something but not a list of songs as we're expecting
+    if(typeof body.tracks.items["0"] === 'undefined') {
+      res.render('index', {
+        message: `Sorry, we couldn't find your song.`,
+        instruction: `Please try again with the exact Artist and Title names.`
+      })
+    }
+    // If the API returns a list of songs as expected
+    else {
+      // Log the first result in the response
+      let id = body.tracks.items["0"].id
+      let track = body.tracks.items["0"].name
+      let artist = body.tracks.items[0].album.artists[0].name
+      console.log(`Spotify:${id} for ${track} by ${artist}`)
+      const genius_options = {
+        url: `https://api.genius.com/search?q=${artist}%20${track}`,
+        headers: {
+          'Authorization': 'Bearer ' + genius_token
+        },
+        json: true,
+        timeout: 1000
+      }
 
-                // Authenticate on the API
-                rp.post(authOptions)
-                  .then(body => {
-                    // Use the access token in the request for the audio features
-                    var token = body.access_token;
-                    const options = {
-                      url: `${spotifyBaseUrl}${spotifyAudioAnalysis}${id}`,
-                      headers: {
-                        'Authorization': 'Bearer ' + token
-                      },
-                      json: true
-                    }
+      rp(genius_options)
+        .then(song => {
+          console.log(`Genius ID: ${song.response.hits[0].result.id} for ${song.response.hits[0].result.full_title}`)
+          path = song.response.hits[0].result.api_path
+          // Authenticate to get the Track features
+          var authOptions = {
+            url: 'https://accounts.spotify.com/api/token',
+            headers: {
+              'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
+            },
+            form: {
+              grant_type: 'client_credentials'
+            },
+            json: true
+          };
 
-                    // Make the request to get the Song's features
-                    rp(options)
-                      .then(body => {
-                          let features = body
-                          console.log(features)
-                          res.render('features', {
-                            status: `Song found`,
-                            track: track,
-                            artist: artist,
-                            features: features
-                          })
-                      })
-                      .catch(error => {
-                        console.log(error) // Error from Spotify API
-                      })
-                  })
-                  .catch(error => {
-                    console.log(error)
-                  })
+          // Authenticate on the API
+          rp.post(authOptions)
+          .then(body => {
+            // Use the access token in the request for the audio features
+            var token = body.access_token;
+            const options = {
+              url: `${spotifyBaseUrl}${spotifyAudioAnalysis}${id}`,
+              headers: {
+                'Authorization': 'Bearer ' + token
+              },
+              json: true
+            }
 
+            // Make the request to get the Song's features
+            rp(options)
+            .then(body => {
+              let features = body
+              // Send the results with the lyrics
+              res.render('features', {
+                status: `Song found`,
+                track: track,
+                artist: artist,
+                features: features,
+                path: path
+              })
+            })
+            .catch(error => {
+              console.log(error) // Error from Spotify API
+            })
+          })
+          .catch(error => {
+            console.log(error)
+          })
+          })
+        .catch(error => {
+          console.log('No lyrics found')
+          path = "No lyrics found"
+          var authOptions = {
+            url: 'https://accounts.spotify.com/api/token',
+            headers: {
+              'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
+            },
+            form: {
+              grant_type: 'client_credentials'
+            },
+            json: true
+          };
 
-                  if (!error && response.statusCode === 200) {
-                    }
-                //end
-              }
-           })
-           .catch(err => {
-              console.log(err) // Error when searching the song
-           });
+          // Authenticate on the API
+          rp.post(authOptions)
+          .then(body => {
+            // Use the access token in the request for the audio features
+            var token = body.access_token;
+            const options = {
+              url: `${spotifyBaseUrl}${spotifyAudioAnalysis}${id}`,
+              headers: {
+                'Authorization': 'Bearer ' + token
+              },
+              json: true
+            }
+
+            // Make the request to get the Song's features
+            rp(options)
+            .then(body => {
+              let features = body
+              // Send the results without the lyrics
+              res.render('features', {
+                status: `Song found`,
+                track: track,
+                artist: artist,
+                features: features,
+                path: path
+              })
+            })
+            .catch(error => {
+              console.log(error) // Error from Spotify API
+            })
+          })
+          .catch(error => {
+            console.log(error)
+          })
+        })
+    }
+  })
+  .catch(err => {
+    console.log(err) // Error when searching the song
+  });
+
 })
 
 console.log(`Server listening on ${port}`)
