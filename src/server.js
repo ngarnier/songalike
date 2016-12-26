@@ -13,6 +13,8 @@ redirect_uri = 'http://localhost:8888/callback', // Your redirect uri
 spotifyBaseUrl = 'https://api.spotify.com',
 spotifyAudioAnalysis = '/v1/audio-features/',
 spotifySearch = '/v1/search',
+geniusBaseUrl = 'https://api.genius.com',
+geniusSearch = '/search',
 genius_token = process.env["GENIUS_TOKEN"]
 let access_token,
 refresh_token
@@ -35,12 +37,12 @@ app.get('/', (req, res) => {
 })
 
 app.get('/search', (req, res) => {
-  let title = encodeURI(req.query.title)
-  let artist = encodeURI(req.query.artist)
+  let query_track = encodeURI(req.query.title)
+  let query_artist = encodeURI(req.query.artist)
 
   // Searching for the song
   const options = {
-    url: `${spotifyBaseUrl}${spotifySearch}?q=track:${title}%20artist:${artist}&type=track`,
+    url: `${spotifyBaseUrl}${spotifySearch}?q=track:${query_track}%20artist:${query_artist}&type=track`,
     json: true
   }
 
@@ -61,7 +63,7 @@ app.get('/search', (req, res) => {
       let artist = body.tracks.items[0].album.artists[0].name
       console.log(`Spotify:${id} for ${track} by ${artist}`)
       const genius_options = {
-        url: `https://api.genius.com/search?q=${artist}%20${track}`,
+        url: `${geniusBaseUrl}${geniusSearch}?q=${artist}%20${track}`,
         headers: {
           'Authorization': 'Bearer ' + genius_token
         },
@@ -176,4 +178,4 @@ app.get('/search', (req, res) => {
 })
 
 console.log(`Server listening on ${port}`)
-app.listen(port);
+app.listen(port)

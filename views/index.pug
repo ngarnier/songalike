@@ -26,3 +26,11 @@ block content
     script(src='../node_modules/material-components-web/dist/material-components-web.js')
     script.
       mdc.autoInit()
+      function init() {
+        // Clear inputs
+        var inputs = document.getElementsByClassName("mdc-textfield__input");
+        for (var i = 0; i < 2; i++) {
+          inputs[i].value = ""
+        }
+      }
+      window.onload = init;

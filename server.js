@@ -37,6 +37,8 @@ var client_id = process.env["SPOTIFY_ID"],
 spotifyBaseUrl = 'https://api.spotify.com',
     spotifyAudioAnalysis = '/v1/audio-features/',
     spotifySearch = '/v1/search',
+    geniusBaseUrl = 'https://api.genius.com',
+    geniusSearch = '/search',
     genius_token = process.env["GENIUS_TOKEN"];
 var access_token = void 0,
     refresh_token = void 0;
@@ -58,12 +60,12 @@ app.get('/', function (req, res) {
 });
 
 app.get('/search', function (req, res) {
-  var title = encodeURI(req.query.title);
-  var artist = encodeURI(req.query.artist);
+  var query_track = encodeURI(req.query.title);
+  var query_artist = encodeURI(req.query.artist);
 
   // Searching for the song
   var options = {
-    url: '' + spotifyBaseUrl + spotifySearch + '?q=track:' + title + '%20artist:' + artist + '&type=track',
+    url: '' + spotifyBaseUrl + spotifySearch + '?q=track:' + query_track + '%20artist:' + query_artist + '&type=track',
     json: true
   };
 
@@ -85,7 +87,7 @@ app.get('/search', function (req, res) {
           var artist = body.tracks.items[0].album.artists[0].name;
           console.log('Spotify:' + id + ' for ' + track + ' by ' + artist);
           var genius_options = {
-            url: 'https://api.genius.com/search?q=' + artist + '%20' + track,
+            url: '' + geniusBaseUrl + geniusSearch + '?q=' + artist + '%20' + track,
             headers: {
               'Authorization': 'Bearer ' + genius_token
             },
