@@ -15,21 +15,21 @@ spotifyAudioAnalysis = '/v1/audio-features/',
 spotifySearch = '/v1/search',
 geniusBaseUrl = 'https://api.genius.com',
 geniusSearch = '/search',
-genius_token = process.env["GENIUS_TOKEN"]
+genius_token = process.env["GENIUS_TOKEN"],
+lastfm_id=process.env["LASTFM_ID"]
+
 let access_token,
-refresh_token
-let path = "No lyrics found"
+  refresh_token,
+  path
 
-const stateKey = 'spotify_auth_state';
+const stateKey = 'spotify_auth_state'
+const app = express()
 
-const app = express();
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+app.use(bodyParser.json()) // support json encoded bodies
+.use(bodyParser.urlencoded({ extended: true })) // support encoded bodies
+.set('view engine', 'pug')
 
-app.set('view engine', 'pug')
-
-app.use(express.static(__dirname + '/public'))
-app.use(express.static(__dirname))
+app.use('/public', express.static(__dirname + '/public'))
 .use(cookieParser());
 
 app.get('/', (req, res) => {

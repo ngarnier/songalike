@@ -39,21 +39,21 @@ spotifyBaseUrl = 'https://api.spotify.com',
     spotifySearch = '/v1/search',
     geniusBaseUrl = 'https://api.genius.com',
     geniusSearch = '/search',
-    genius_token = process.env["GENIUS_TOKEN"];
+    genius_token = process.env["GENIUS_TOKEN"],
+    lastfm_id = process.env["LASTFM_ID"];
+
 var access_token = void 0,
-    refresh_token = void 0;
-var path = "No lyrics found";
+    refresh_token = void 0,
+    path = void 0;
 
 var stateKey = 'spotify_auth_state';
-
 var app = (0, _express2.default)();
-app.use(_bodyParser2.default.json()); // support json encoded bodies
-app.use(_bodyParser2.default.urlencoded({ extended: true })); // support encoded bodies
 
-app.set('view engine', 'pug');
+app.use(_bodyParser2.default.json()) // support json encoded bodies
+.use(_bodyParser2.default.urlencoded({ extended: true })) // support encoded bodies
+.set('view engine', 'pug');
 
-app.use(_express2.default.static(__dirname + '/public'));
-app.use(_express2.default.static(__dirname)).use((0, _cookieParser2.default)());
+app.use('/public', _express2.default.static(__dirname + '/public')).use((0, _cookieParser2.default)());
 
 app.get('/', function (req, res) {
   res.render('index');
