@@ -21,6 +21,10 @@ h2 {
 fieldset {
   border: none; }
 
+button#features,
+button#similar {
+  margin: 10px 10px; }
+
 .mdc-textfield {
   margin: 0 10px 10px 0; }
 
@@ -57,6 +61,9 @@ svg {
   font: 12px sans-serif;
   text-anchor: middle;
   fill: black; }
+
+.diagram {
+  margin-top: -30px; }
 
 /* The Modal (background) */
 .modal {

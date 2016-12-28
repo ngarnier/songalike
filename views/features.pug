@@ -27,55 +27,54 @@ block content
           span.mdc-list-item__text
             span.mdc-list-item__text__primary Danceability
             span.mdc-list-item__text__secondary How suitable a track is for dancing.
-          div.mdc-list-item__end-detail#danceability
+          div.mdc-list-item__end-detail.diagram#danceability
         li.mdc-list-item
           span.emoji 🔥
           span.mdc-list-item__text
             span.mdc-list-item__text__primary Energy
             span.mdc-list-item__text__secondary A measure representing a perceptual measure of intensity and activity.
-          div.mdc-list-item__end-detail#energy
+          div.mdc-list-item__end-detail.diagram#energy
         li.mdc-list-item
           span.emoji 🗯
           span.mdc-list-item__text
             span.mdc-list-item__text__primary Speechiness
             span.mdc-list-item__text__secondary Speechiness detects the presence of spoken words in a track.
-          div.mdc-list-item__end-detail#speechiness
+          div.mdc-list-item__end-detail.diagram#speechiness
         li.mdc-list-item
           span.emoji 🎸
           span.mdc-list-item__text
             span.mdc-list-item__text__primary Acousticness
             span.mdc-list-item__text__secondary Whether the track is acoustic, 1 being fully acoustic.
-          div.mdc-list-item__end-detail#acousticness
+          div.mdc-list-item__end-detail.diagram#acousticness
         li.mdc-list-item
           span.emoji 🎹
           span.mdc-list-item__text
             span.mdc-list-item__text__primary Instrumentalness
             span.mdc-list-item__text__secondary Whether a track contains, 1 being without any vocals.
-          div.mdc-list-item__end-detail#instrumentalness
+          div.mdc-list-item__end-detail.diagram#instrumentalness
         li.mdc-list-item
           span.emoji 🎟
           span.mdc-list-item__text
             span.mdc-list-item__text__primary Liveness
             span.mdc-list-item__text__secondary Detects the presence of an audience in the recording.
-          div.mdc-list-item__end-detail#liveness
+          div.mdc-list-item__end-detail.diagram#liveness
         li.mdc-list-item
           span.emoji 🎭
           span.mdc-list-item__text
             span.mdc-list-item__text__primary Valence
             span.mdc-list-item__text__secondary Positiveness of the track. The closer to 1, the happier.
-          div.mdc-list-item__end-detail#valence
+          div.mdc-list-item__end-detail.diagram#valence
         li.mdc-list-item
           span.emoji 🐌
           span.mdc-list-item__text
             span.mdc-list-item__text__primary Tempo
             span.mdc-list-item__text__secondary The overall estimated tempo of a track in beats per minute (BPM).
-          div.mdc-list-item__end-detail#tempo
+          div.mdc-list-item__end-detail.diagram#tempo
   div#circles
 
   script(src='public/material-components-web.min.js')
   script(src='https://d3js.org/d3.v3.min.js')
   script(src="public/modal.js")
-  script(src="public/features-d3.js")
   script.
     mdc.autoInit()
     var width = 40,

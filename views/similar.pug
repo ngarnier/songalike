@@ -1,0 +1,74 @@
+extends head
+block content
+
+  body
+    div.container
+      h2.mdc-typography--display2
+        a(href="./") songalike.
+      h3 Songs similar to #{track} by #{artist}
+      ul.mdc-list.mdc-list--two-line
+        each track, i in tracks
+          li.mdc-list-item
+            span.mdc-list-item__text
+              span.mdc-list-item__text__primary #{track.name}
+              span.mdc-list-item__text__secondary #{track.artist.name}
+            div.mdc-list-item__end-detail.diagram(id=`id${i}`)
+
+  script(src='public/material-components-web.min.js')
+  script(src='https://d3js.org/d3.v3.min.js')
+  script.
+    mdc.autoInit()
+    var width = 40,
+    height = 60;
+    var arc = d3.svg.arc()
+    .innerRadius(18)
+    .outerRadius(25)
+    .startAngle(0)
+    .endAngle(function(d) { return (d.value / d.size) * 2 * Math.PI; });
+    var defaultArc = d3.svg.arc()
+    .innerRadius(18)
+    .outerRadius(25)
+    .startAngle(0)
+    .endAngle(function(d) { return 100 * 2 * Math.PI; })
+
+    var matches = !{JSON.stringify(tracks)}
+
+    for (var i = 0; i < matches.length; i++) {
+      fields = [{
+        value: Math.round(matches[i].match*100),
+        size: 100,
+        label: "%"
+      }];
+      let ratio = fields[0].value
+      sentiment = ratio < 33 ? 'negative' : ratio < 66 ? 'moderate' : 'positive';
+      svg = d3.selectAll("#id"+i).append("svg")
+      .attr("width", width)
+      .attr("height", height);
+      field = svg.selectAll("#id"+i)
+      .data(fields)
+      .enter().append("g")
+      .attr("transform", function(d, i) { return "translate(" + (i * 2 + 1.25) / 6.5 * width + "," + height / 2 + ")"; })
+      .attr("class", "field");
+      field.append("path")
+      .attr("class", "path path--background")
+      .attr("d", defaultArc);
+      path = field.append("path")
+      .attr("class", "path path--foreground " + sentiment);
+      label = field.append("text")
+      .attr("class", "label")
+      .attr("dy", ".35em");
+      field
+      .each(function(d) { d.previous = 0, d.value = d.value; });
+      path.transition()
+      .ease("elastic")
+      .duration(6000)
+      .attrTween("d", arcTween);
+      label
+      .text(function(d) { return d.value + d.label; });
+    }
+    function arcTween(b) {
+      var i = d3.interpolate({value: b.previous}, b);
+      return function(t) {
+        return arc(i(t));
+      };
+    }

@@ -21,8 +21,12 @@ block content
             label.mdc-textfield__label(for='title') Track title
             input#title.mdc-textfield__input(type='text', name='title')
           br
-          button.mdc-button.mdc-button--raised.mdc-theme--primary-bg.mdc-button--primary(type='submit')
+          button.mdc-button.mdc-button--raised.mdc-theme--primary-bg.mdc-button--primary#features(type='submit', name='button', value='features')
             | Get the track info
+          button.mdc-button.mdc-button--raised.mdc-theme--primary-bg.mdc-button--primary#similar(type='submit', name='button', value='similar')
+            | Get similar tracks
+
+
     script(src='public/material-components-web.min.js')
     script.
       mdc.autoInit()
