@@ -58,6 +58,7 @@ app.use(_bodyParser2.default.json()) // support json encoded bodies
 }).get('/search', function (req, res) {
   var query_track = encodeURI(req.query.title);
   var query_artist = encodeURI(req.query.artist);
+  console.log('Search for ' + query_track + ' by ' + query_artist);
 
   // If the user wants the features of the song
   if (req.query.button == 'features') {
@@ -195,16 +196,23 @@ app.use(_bodyParser2.default.json()) // support json encoded bodies
 
     (0, _requestPromise2.default)(lastfm_options).then(function (body) {
       if (body.similartracks) {
+        console.log(body.similartracks);
         var tracks = body.similartracks.track.length > 9 ? body.similartracks.track.slice(0, 10) : body.similartracks.track;
-        console.log(body.similartracks.track);
-        res.render('similar', {
-          tracks: tracks,
-          track: req.query.title,
-          artist: req.query.artist
-        });
+        if (track.lenth > 0) {
+          res.render('similar', {
+            tracks: tracks,
+            track: req.query.title,
+            artist: req.query.artist
+          });
+        } else {
+          res.render('index', {
+            message: 'Sorry, we couldn\'t find any song similar ' + req.query.title + ' by ' + req.query.artist + '.',
+            instruction: 'Try with another one?'
+          });
+        }
       } else {
         res.render('index', {
-          message: 'Sorry, we couldn\'t find any song similar to your song.',
+          message: 'Sorry, we couldn\'t find ' + req.query.title + ' by ' + req.query.artist + '.',
           instruction: 'Please try again and check the spelling of the Artist and Title names.'
         });
       }
