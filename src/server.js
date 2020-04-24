@@ -191,7 +191,7 @@ app.use(bodyParser.json()) // support json encoded bodies
         if (body.similartracks) {
           console.log(body.similartracks)
           let tracks = body.similartracks.track.length > 9 ? body.similartracks.track.slice(0, 10) : body.similartracks.track
-          if (body.similartracks.track.lenth > 0) {
+          if (body.similartracks.track.length > 0) {
             res.render('similar', {
               tracks: tracks,
               track: req.query.title,
