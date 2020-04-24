@@ -13,7 +13,7 @@ block content
           | )
       center(style="height: 80px")
         // Spotify iframe
-        iframe(src=`https://embed.spotify.com/?uri=${features.uri}&theme=white`, frameborder="0", width="300px")
+        iframe(src=`https://embed.spotify.com/?uri=${features.uri}&theme=white`, frameborder="0", height="80px", width="300px")
         // Genius modal
         if path != "No lyrics found"
           div#myModal.modal
@@ -77,7 +77,7 @@ block content
   script(src="public/modal.js")
   script.
     mdc.autoInit()
-    var width = 40,
+    var width = 130,
     height = 60;
     var arc = d3.svg.arc()
     .innerRadius(18)
